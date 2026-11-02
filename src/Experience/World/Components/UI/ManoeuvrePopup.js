@@ -1,3 +1,4 @@
+import { disposeUI } from '../../../Utils/Dispose'
 import * as THREE from 'three'
 import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
@@ -87,7 +88,7 @@ export default class ManoeuvrePopup {
 
         this.tcaBlock.add(
             new ThreeMeshUI.Text({
-                content: "Manoeuvring Time",
+                content: "Post-manoeuvre TCA",
                 fontSize: 0.045
             }),
             new ThreeMeshUI.Text({
@@ -209,58 +210,19 @@ export default class ManoeuvrePopup {
     }
 
     hide() {
-        this.mesh.scale.set(0, 0, 0)
+        this.mesh.visible = false
         this.isOpen = false
     }
 
     show() {
+        this.mesh.visible = true
         this.mesh.scale.set(0.3, 0.3, 0.3)
         this.mesh.position.set(this.experience.camera.object3D.position.x, 1.3, this.experience.camera.object3D.position.z - 0.5)
         this.isOpen = true
     }
 
     destroy() {
-        // Dispose of ThreeMeshUI blocks, geometries, and materials
-        this.disposeMeshUI(this.mesh);
-
-        // Remove the mesh from the scene
-        this.scene.remove(this.mesh);
-
-        // Clear references
-        this.mesh = null;
-        this.header = null;
-        this.main = null;
-        this.tcaBlock = null;
-        this.typeBlock = null;
-        this.durationBlock = null;
-        this.pocBlock = null;
-        this.missDistanceBlock = null;
-    }
-
-    disposeMeshUI(block) {
-        if (block) {
-            // Recursively dispose children
-            if (block.children) {
-                block.children.forEach(child => {
-                    this.disposeMeshUI(child);
-                });
-            }
-
-            // Dispose of the block itself
-            if (block.geometry) {
-                block.geometry.dispose();
-            }
-            if (block.material) {
-                // If material is an array, dispose each material
-                if (Array.isArray(block.material)) {
-                    block.material.forEach(material => material.dispose());
-                } else {
-                    block.material.dispose();
-                }
-            }
-            if (block.texture) {
-                block.texture.dispose();
-            }
-        }
+        disposeUI(this.mesh, this.experience.raycaster)
+        this.mesh = null
     }
 }

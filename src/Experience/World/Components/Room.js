@@ -1,226 +1,149 @@
 import * as THREE from 'three'
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import Experience from '../../Experience'
 import Objects from './Objects'
-import gsap from 'gsap'
+import { disposeScene } from '../../Utils/Dispose'
+import { covarianceAxes, projectedEllipse } from '../../Utils/SpatialMath'
+import { encounterBounds, localEncounter } from '../../Utils/EncounterMath'
+
+// Local coordinates of the three receiving planes: XY (back), XZ (floor), ZY (left).
+const planes = [
+    { u: 0, v: 1, normal: 2, position: [0, 0, -1.492], rotation: [0, 0, 0] },
+    { u: 0, v: 2, normal: 1, position: [0, -1.492, 0], rotation: [Math.PI / 2, 0, 0] },
+    { u: 2, v: 1, normal: 0, position: [-1.492, 0, 0], rotation: [0, -Math.PI / 2, 0] }
+]
 
 export default class Room {
-    constructor() {
+    constructor(view) {
         this.experience = new Experience()
-        this.scene = this.experience.scene
-        this.time = this.experience.time
-        this.resources = this.experience.resources
-        this.debug = this.experience.debug
-        this.data = this.experience.data
-        this.roomView = this.experience.roomView
-        this.roomConjunction = document.querySelector('#room-conjunction')
-        this.roomTarget = document.querySelector('#room-target')
-        this.roomTargetPosManoeuvre = document.querySelector('#room-target-posmanoeuvre')
-        this.roomChaser = document.querySelector('#room-chaser')
-
-        // Setup 
-        this.modelSize = 2
-
-        this.target = new Objects(this.roomTarget.object3D, this.roomTarget, this.resources.items.target1Model, 'target', 'lightgreen', this.modelSize)
-        this.chaser = new Objects(this.roomChaser.object3D, this.roomChaser, this.resources.items.chaser1Model, 'chaser', 'lightblue', this.modelSize)
-        this.targetPosManoeuvre = new Objects(this.roomTargetPosManoeuvre.object3D, this.roomTargetPosManoeuvre, this.resources.items.targetPosManoeuvre1Model, 'target', '#FFBE0B', this.modelSize)
-
-        this.setRoom()
-    }
-
-    setRoom() {
-        // Walls
-        let wallGeometry = new THREE.PlaneGeometry(4, 4)
-        let wallMaterial = new THREE.MeshStandardMaterial({ color: new THREE.Color('#000') })
-        // wallMaterial.wireframe = true
-
-        // Floor 
-        let floor = new THREE.Mesh(
-            wallGeometry,
-            wallMaterial
-        )
-        floor.rotation.x = - Math.PI * 0.5
-        floor.position.y = -2
-        // floor.castShadow = true; //default is false
-        floor.receiveShadow = true;
-
-        // Front Wall 
-        let frontW = new THREE.Mesh(
-            wallGeometry,
-            wallMaterial
-        )
-        frontW.position.z = -2
-        // frontW.castShadow = true; //default is false
-        frontW.receiveShadow = true;
-
-        // Back Wall 
-        let backW = new THREE.Mesh(
-            wallGeometry,
-            wallMaterial
-        )
-        backW.rotation.y = Math.PI
-        backW.position.z = 2
-        // backW.castShadow = true; //default is false
-        backW.receiveShadow = true;
-
-        // Left Wall 
-        let leftW = new THREE.Mesh(
-            wallGeometry,
-            wallMaterial
-        )
-        leftW.rotation.x = - Math.PI * 0.5
-        leftW.rotation.y = Math.PI * 0.5
-        leftW.position.x = -2
-        // leftW.castShadow = true; //default is false
-        leftW.receiveShadow = true;
-
-        // Right Wall 
-        let rightW = new THREE.Mesh(
-            wallGeometry,
-            wallMaterial
-        )
-        rightW.rotation.x = - Math.PI * 0.5
-        rightW.rotation.y = - Math.PI * 0.5
-        rightW.position.x = 2
-        // rightW.castShadow = true; //default is false
-        rightW.receiveShadow = true;
-
-        this.roomView.add(floor, frontW, backW, leftW, rightW)
-
-        // Define the initial points
-        this.points = [
-            new THREE.Vector3(1, 0, 0),
-            new THREE.Vector3(-1, 0, 0)
-        ];
-
-        // Create the geometry and set the vertices
-        this.lineGeometry = new THREE.BufferGeometry().setFromPoints(this.points);
-
-        // Create the line material
-        this.lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-
-        // Create the line
-        this.line = new THREE.Line(this.lineGeometry, this.lineMaterial);
-        this.roomConjunction.object3D.add(this.line)
-    }
-
-    updateVisualization(conjunction) {
-        let dataToDisplay = this.data.conjunctions[conjunction]
-        // console.log(dataToDisplay)
-        // Information about the target and chaser space objects
-        let target = dataToDisplay.target;
-        let chaser = dataToDisplay.chaser;
-
-
-        // State vectors for target and chaser
-        let targetStateVector = dataToDisplay.details.target.state_vector;
-        let chaserStateVector = dataToDisplay.details.chaser.state_vector;
-
-        // Create position vectors for target and chaser
-        let targetPosition = new THREE.Vector3(targetStateVector.x, targetStateVector.y, targetStateVector.z);
-        let chaserPosition = new THREE.Vector3(chaserStateVector.x, chaserStateVector.y, chaserStateVector.z);
-
-        let a = targetStateVector.x - chaserStateVector.x;
-        let b = targetStateVector.y - chaserStateVector.y;
-        let c = targetStateVector.z - chaserStateVector.z;
-        let distance = Math.sqrt(a * a + b * b + c * c);
-
-        // Half a distance to center the conjunction to the middle of the room
-        let x = (targetPosition.x - chaserPosition.x) / 2
-        let y = (targetPosition.y - chaserPosition.y) / 2
-        let z = (targetPosition.z - chaserPosition.z) / 2
-        // console.log(distance)
-
-        let halfDistances = [x, y, z]
-        let mappedDistances = this.mapToRoom(halfDistances);
-        // console.log(mappedDistances)
-
-        // Animate line points using GSAP
-        gsap.to(this.points[0], {
-            x: mappedDistances[0],
-            y: mappedDistances[1],
-            z: mappedDistances[2],
-            duration: 1,
-            ease: "easeInOut",
-            onUpdate: this.updateLine.bind(this)
-        });
-
-        gsap.to(this.points[1], {
-            x: -mappedDistances[0],
-            y: -mappedDistances[1],
-            z: -mappedDistances[2],
-            duration: 1,
-            ease: "easeInOut",
-            onUpdate: this.updateLine.bind(this)
-        });
-
-        if (this.target && this.chaser) {
-            gsap.to(this.target.view.position, 1, { x: mappedDistances[0], y: mappedDistances[1], z: mappedDistances[2], ease: "easeInOut" })
-            gsap.to(this.chaser.view.position, 1, { x: -mappedDistances[0], y: -mappedDistances[1], z: -mappedDistances[2], ease: "easeInOut" })
-            // console.log(this.target.view.position, this.chaser.view.position)
-            // gsap.to(this.target.model.scale, 1, { x: mappedDistances[0], y: mappedDistances[1], z: mappedDistances[2], ease: "easeInOut" })
-            // gsap.to(this.chaser.model.scale, 1, { x: -mappedDistances[0], y: -mappedDistances[1], z: -mappedDistances[2], ease: "easeInOut" })
-            this.target.covariance.update(dataToDisplay.details.target.covariance)
-            this.targetPosManoeuvre.covariance.update(dataToDisplay.details.target.covariance)
-            this.chaser.covariance.update(dataToDisplay.details.chaser.covariance)
+        this.view = view ?? this.experience.roomView
+        this.view.position.set(0, 0, 0)
+        this.view.scale.setScalar(0.42)
+        const resources = this.experience.resources.items
+        this.target = new Objects(new THREE.Group(), null, resources.target1Model, 'Target', '#96df92', 0.28)
+        this.chaser = new Objects(new THREE.Group(), null, resources.chaser1Model, 'Chaser', '#81c9ff', 0.23)
+        this.targetPosManoeuvre = new Objects(new THREE.Group(), null, resources.targetPosManoeuvre1Model, 'After manoeuvre (own TCA)', '#ffbe0b', 0.28)
+        this.view.add(this.target.view, this.chaser.view, this.targetPosManoeuvre.view)
+        this.paths = new THREE.Group()
+        this.view.add(this.paths)
+        // Keep uncertainty anchored to the provided baseline epoch, independently
+        // from the moving estimated glyphs; no covariance propagation is available.
+        for (const object of [this.target, this.chaser]) this.view.add(object.covariance.ellipsoid)
+        this.walls = new THREE.Group()
+        const wallGeometry = new THREE.PlaneGeometry(3, 3)
+        const wallMaterial = new THREE.MeshBasicMaterial({ color: '#161c29', side: THREE.FrontSide })
+        for (const [position, rotation] of [
+            [[0, 0, -1.5], [0, 0, 0]],
+            [[0, -1.5, 0], [-Math.PI / 2, 0, 0]],
+            [[-1.5, 0, 0], [0, Math.PI / 2, 0]],
+            [[1.5, 0, 0], [0, -Math.PI / 2, 0]]
+        ]) {
+            const wall = new THREE.Mesh(wallGeometry, wallMaterial)
+            wall.position.set(...position)
+            wall.rotation.set(...rotation)
+            this.walls.add(wall)
         }
-
-        this.updateManoeuvre(conjunction, 0)
+        this.view.add(this.walls)
+        for (const plane of planes) {
+            const grid = new THREE.GridHelper(3, 6, '#344154', '#263142')
+            grid.rotation.x = Math.PI / 2
+            const surface = new THREE.Group()
+            surface.position.set(...plane.position)
+            surface.rotation.set(...plane.rotation)
+            surface.add(grid)
+            this.walls.add(surface)
+        }
+        this.frame = new THREE.Box3Helper(new THREE.Box3(new THREE.Vector3(-1.5, -1.5, -1.5), new THREE.Vector3(1.5, 1.5, 1.5)), '#52657c')
+        this.view.add(this.frame, new THREE.AxesHelper(0.45))
+        this.line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#ffffff' }))
+        this.view.add(this.line)
+        this.projections = new THREE.Group()
+        for (const color of ['#96df92', '#81c9ff']) {
+            const group = new THREE.Group()
+            for (const plane of planes) {
+                const projection = new THREE.Group()
+                projection.rotation.set(...plane.rotation)
+                projection.add(new THREE.Mesh(new THREE.CircleGeometry(1, 64), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.25, depthWrite: false, side: THREE.DoubleSide })))
+                const points = Array.from({ length: 96 }, (_, i) => new THREE.Vector3(Math.cos(i * Math.PI / 48), Math.sin(i * Math.PI / 48), 0.001))
+                projection.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color })))
+                group.add(projection)
+            }
+            this.projections.add(group)
+        }
+        this.view.add(this.projections)
     }
 
-    updateManoeuvre(conjunction, manoeuvre) {
-        let dataToDisplay = this.data.conjunctions[conjunction]
-        // console.log(dataToDisplay.manoeuvres[manoeuvre].collision_avoidance.state_vector_tca)
-
-        let targetPosManoeuvreStateVector = dataToDisplay.manoeuvres[manoeuvre].collision_avoidance.state_vector_tca;
-
-        // Half a distance to center the conjunction to the middle of the room
-        let x = targetPosManoeuvreStateVector.x
-        let y = targetPosManoeuvreStateVector.y
-        let z = targetPosManoeuvreStateVector.z
-        // console.log(distance)
-
-        let halfDistances = [x, y, z]
-        let mappedDistances = this.mapToRoom(halfDistances);
-        // console.log(mappedDistances)
-
-        let targetPosManoeuvrePosition = new THREE.Vector3(targetPosManoeuvreStateVector.x, targetPosManoeuvreStateVector.y, targetPosManoeuvreStateVector.z);
-        console.log(mappedDistances[0], mappedDistances[1], mappedDistances[2])
-
-        if (this.targetPosManoeuvre) {
-            gsap.to(this.targetPosManoeuvre.view.position, 1, { x: mappedDistances[0], y: mappedDistances[1], z: mappedDistances[2], ease: "easeInOut" })
+    updateScenario(conjunction, manoeuvre) {
+        const world = this.experience.world
+        const states = localEncounter(conjunction, manoeuvre)
+        const bounds = encounterBounds(conjunction)
+        this.transform = world.detailFocus ? bounds.positions : bounds.physical
+        this.covarianceGain = world.detailFocus ? bounds.gain : 1
+        const scale = this.transform.scale * world.zoom
+        this.metersPerUnit = 1 / scale
+        const objects = [this.target, this.chaser, this.targetPosManoeuvre]
+        objects.forEach((object, index) => {
+            object.view.visible = !!states[index]
+            object.popup.hide()
+            if (!states[index]) return
+            object.view.position.copy(this.transform.map(states[index]).multiplyScalar(world.zoom))
+            object.setData(index === 1 ? conjunction.chaser : conjunction.target)
+        })
+        for (const [index, role] of ['target', 'chaser'].entries()) {
+            const object = objects[index], detail = conjunction.details[role]
+            const axes = covarianceAxes(detail.covariance, detail.state_vector, world.sigma)
+            object.covariance.update(detail.covariance, detail.state_vector, scale * this.covarianceGain, world.sigma)
+            object.covariance.ellipsoid.position.copy(this.transform.map(detail.state_vector))
+            object.covariance.ellipsoid.visible = world.showCovariance
+            planes.forEach((plane, planeIndex) => {
+                const projection = this.projections.children[index].children[planeIndex]
+                const ellipse = projectedEllipse(axes, plane.u, plane.v)
+                projection.position.copy(this.transform.map(detail.state_vector))
+                projection.position.setComponent(plane.normal, plane.position[plane.normal])
+                // Rotate and scale in the receiving plane, keeping its depth fixed.
+                for (const shape of projection.children) {
+                    shape.rotation.z = ellipse.angle
+                    shape.scale.set(ellipse.radii[0] * scale * this.covarianceGain, ellipse.radii[1] * scale * this.covarianceGain, 1)
+                }
+            })
+        }
+        this.targetPosManoeuvre.covariance.ellipsoid.visible = false
+        const attribute = this.line.geometry.attributes.position
+        attribute.setXYZ(0, ...(manoeuvre ? this.targetPosManoeuvre : this.target).view.position.toArray())
+        attribute.setXYZ(1, ...this.chaser.view.position.toArray())
+        attribute.needsUpdate = true
+        this.line.geometry.computeBoundingSphere()
+        this.projections.visible = world.showProjections
+        for (const path of [...this.paths.children]) {
+            path.removeFromParent(); disposeScene(path)
+        }
+        if (world.showTrajectories) for (const [index, color] of ['#96df92', '#81c9ff', '#ffbe0b'].entries()) {
+            if (index === 2 && !manoeuvre) continue
+            const points = Array.from({ length: 81 }, (_, i) => this.transform.map(localEncounter(conjunction, manoeuvre, -0.5 + i / 80)[index]))
+            const path = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineDashedMaterial({ color, dashSize: 0.04, gapSize: 0.025, transparent: true, opacity: 0.45 }))
+            path.computeLineDistances()
+            path.trail = new THREE.Line(path.geometry.clone(), new THREE.LineBasicMaterial({ color }))
+            path.trail.renderOrder = 1
+            path.add(path.trail)
+            this.paths.add(path)
         }
     }
-
-    // Update the line geometry
-    updateLine() {
-        this.lineGeometry.setFromPoints(this.points);
+    setTime(conjunction, manoeuvre, offset) {
+        const states = localEncounter(conjunction, manoeuvre, offset)
+        for (const [i, object] of [this.target, this.chaser, this.targetPosManoeuvre].entries()) {
+            if (states[i]) object.view.position.copy(this.transform.map(states[i]))
+        }
+        const attribute = this.line.geometry.attributes.position
+        attribute.setXYZ(0, ...(manoeuvre ? this.targetPosManoeuvre : this.target).view.position.toArray())
+        attribute.setXYZ(1, ...this.chaser.view.position.toArray())
+        attribute.needsUpdate = true
+        this.line.geometry.computeBoundingSphere()
+        const index = THREE.MathUtils.clamp(Math.round((offset + 0.5) * 80), 0, 80)
+        const reverse = this.experience.world.playbackDirection < 0
+        const start = reverse ? index : Math.max(0, index - 10)
+        const end = reverse ? Math.min(80, index + 10) : index
+        this.paths.children.forEach(path => path.trail.geometry.setDrawRange(start, end - start + 1))
+        this.estimatedSeparation = (manoeuvre ? this.targetPosManoeuvre : this.target).view.position.distanceTo(this.chaser.view.position) / this.transform.scale
     }
-
-    show() {
-        gsap.to(this.roomView.position, 1, { x: 0, ease: "easeInOut" })
-        gsap.to(this.roomView.scale, { x: 1, y: 1, z: 1 })
-    }
-
-    hide() {
-        gsap.to(this.roomView.position, 1, { x: 5, ease: "easeInOut" })
-        gsap.to(this.roomView.scale, { x: 0, y: 0, z: 0 })
-    }
-
-    update() {
-        // Update target and chaser objects
-        if (this.target) this.target.update();
-        if (this.chaser) this.chaser.update();
-    }
-
-    mapRange(x, a1, a2, b1, b2) {
-        return b1 + ((x - a1) * (b2 - b1)) / (a2 - a1);
-    }
-
-    mapToRoom(distances) {
-        const originalMin = Math.min(...distances);
-        const originalMax = Math.max(...distances);
-
-        return distances.map(distance => (this.mapRange(distance, originalMin, originalMax, 0, 1)));
-    }
+    update() { this.target.update(); this.chaser.update(); this.targetPosManoeuvre.update() }
+    destroy() { for (const object of [this.target, this.chaser, this.targetPosManoeuvre]) object.destroy() }
 }

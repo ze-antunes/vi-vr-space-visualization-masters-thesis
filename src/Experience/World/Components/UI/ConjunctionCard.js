@@ -1,8 +1,7 @@
+import { disposeUI } from '../../../Utils/Dispose'
 import * as THREE from 'three'
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
-import Panel from './Panel'
 
 export default class ConjunctionCard {
     constructor(grid, cardInfo, id) {
@@ -35,7 +34,7 @@ export default class ConjunctionCard {
         this.card = new ThreeMeshUI.Block({
             width: 1.2,
             height: 0.25,
-            justifyContent: 'space-between',
+            justifyContent: 'center',
             contentDirection: 'row',
             margin: 0.025,
             backgroundColor: new THREE.Color("#505050"),
@@ -75,17 +74,12 @@ export default class ConjunctionCard {
 
         this.card.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                this.experience.world.conjunctionsMenu.grid.setActiveCard(this)
-                this.world.currentConjunctionIndex = this.id
-                this.world.globe.updateVisualization(this.id)
-                this.world.room.updateVisualization(this.id)
-            }
+            attributes: selectedAttributes
         });
         this.card.setupState(hoveredStateAttributes);
         this.card.setupState(idleStateAttributes);
 
+        this.card.onActivate = () => this.world.selectConjunction(this.id)
         this.grid.add(this.card)
         this.objsToTest.push(this.card)
     }
@@ -169,85 +163,18 @@ export default class ConjunctionCard {
         // this.mergedGeometry = BufferGeometryUtils.mergeGeometries(this.geometries)
     }
 
-    setValueTCA(isoDateString) {
-        let date = new Date(isoDateString);
-
-        let options = {
-            month: 'short',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        };
-
-        // Extract parts
-        let formattedDate = date.toLocaleDateString('en-US', options).replace(',', '');
-        let time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-
-        // Combine parts into desired format
-        let [monthDay, timePart] = formattedDate.split(' ');
-
-        return `${monthDay} ${timePart}, ${time}`;
+    setValueTCA(value) {
+        return new Date(value).toLocaleString('en-US', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }).replace(',', '')
     }
 
-    setActive(isActive) {
-        this.card.active = isActive;
-        if (isActive) {
-            this.card.setState('selected');
-            if (this.manoeuvresMenu != null) {
-                if (this.clicks % 2 == 0)
-                    this.manoeuvresMenu.show()
-                else
-                    this.manoeuvresMenu.hide()
-            } else {
-                this.setManoeuvresMenu()
-            }
-            this.clicks++;
-        } else {
-            this.card.setState('idle');
-            if (this.manoeuvresMenu) {
-                this.manoeuvresMenu.destroy()
-                this.manoeuvresMenu = null
-            }
-        }
-    }
-
-    setManoeuvresMenu() {
-        this.manoeuvresMenu = new Panel("Manoeuvres", "manoeuvreCard", this.cardInfo.manoeuvres.length)
-        this.manoeuvresMenu.mesh.position.set(1.4, 1.6, -1.2);
-        this.manoeuvresMenu.mesh.rotation.y = -0.25;
-        this.manoeuvresMenu.mesh.scale.set(0.5, 0.5, 0.5)
-        this.manoeuvresMenu.setHeader()
-        this.manoeuvresMenu.setGrid(this.cardInfo.manoeuvres, 7)
-
-        if (this.manoeuvresMenu.grid)
-            this.manoeuvresMenu.grid.cards[0].setActive(true)
+    setActive(active) {
+        this.card.active = active
+        this.card.setState(active ? 'selected' : 'idle')
     }
 
     destroy() {
-        // Properly dispose of ThreeMeshUI objects and their geometries/materials
-        this.card.traverse(child => {
-            if (child.isMesh) {
-                if (child.geometry) {
-                    child.geometry.dispose();
-                }
-                if (child.material) {
-                    if (Array.isArray(child.material)) {
-                        child.material.forEach(mat => mat.dispose());
-                    } else {
-                        child.material.dispose();
-                    }
-                }
-            }
-        });
-
-        // Remove the card from the grid and raycaster's test objects
-        this.grid.remove(this.card);
+        disposeUI(this.card, this.experience.raycaster)
         this.card = null
-
-        let index = this.objsToTest.indexOf(this.card);
-        if (index > -1) {
-            this.objsToTest.splice(index, 1);
-        }
     }
+
 }

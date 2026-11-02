@@ -1,22 +1,16 @@
+import { defineConfig } from 'vite'
 import glsl from 'vite-plugin-glsl'
 
-export default {
-    root: 'src/',
-    publicDir: '../static/',
+export default defineConfig({
+    root: 'src',
+    publicDir: '../static',
     base: './',
-    server:
-    {
-        host: true, // Open to local network and display URL
-        open: !('SANDBOX_URL' in process.env || 'CODESANDBOX_HOST' in process.env) // Open if it's not a CodeSandbox
+    resolve: { dedupe: ['three'] },
+    server: { host: '127.0.0.1', open: false },
+    build: {
+        outDir: '../dist',
+        emptyOutDir: true,
+        sourcemap: true
     },
-    build:
-    {
-        outDir: '../dist', // Output in the dist/ folder
-        emptyOutDir: true, // Empty the folder first
-        sourcemap: true // Add sourcemap
-    },
-    plugins:
-        [
-            glsl()
-        ]
-}
+    plugins: [glsl()]
+})

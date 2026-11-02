@@ -1,89 +1,61 @@
 import * as THREE from 'three'
-import EventEmitter from "./EventEmitter";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { clone } from 'three/addons/utils/SkeletonUtils.js'
+import { validateDataset } from './SpatialMath.js'
 
-export default class Resources extends EventEmitter {
+export default class Resources {
     constructor(sources) {
-        super()
-
-        // Options
         this.sources = sources
-
-        //Setup
         this.items = {}
-        this.toLoad = this.sources.length
-        this.loaded = 0
-
-        this.fetchData()
-        
-        this.setLoaders()
-        this.startLoading()
-    }
-    
-    setLoaders() {
-        this.loaders = {}
-        this.loadingManager = new THREE.LoadingManager()
-        let progressBar = document.getElementById('progress-bar')
-        let label = document.getElementById('progress-bar-label')
-
-        this.loadingManager.onProgress = (url, loaded, total) => {
-            // console.log(`start loading: ${url}`)
-            label.innerHTML = (((loaded / total) * 100).toFixed(0)).toString() + " %"
-            progressBar.value = (loaded / total) * 100
+        this.cache = new Map()
+        this.controller = new AbortController()
+        this.manager = new THREE.LoadingManager()
+        this.manager.onProgress = (_url, loaded, total) => {
+            const percent = Math.round(loaded / total * 100)
+            document.getElementById('progress-bar').value = percent
+            document.getElementById('progress-bar-label').textContent = `${percent} %`
         }
-
-        this.loaders.gltfLoader = new GLTFLoader(this.loadingManager)
-        this.loaders.textureLoader = new THREE.TextureLoader(this.loadingManager)
-        this.loaders.cubeTextureLoader = new THREE.CubeTextureLoader(this.loadingManager)
+        this.gltfLoader = new GLTFLoader(this.manager)
+        this.textureLoader = new THREE.TextureLoader(this.manager)
+        this.ready = this.initialize()
     }
-    
-    startLoading() {
-        for (let source of this.sources) {
-            if (source.type === 'gltfModel') {
-                this.loaders.gltfLoader.load(
-                    source.path,
-                    (file) => {
-                        this.sourceLoaded(source, file)
-                    }
-                )
-            } else if (source.type === 'texture') {
-                this.loaders.textureLoader.load(
-                    source.path,
-                    (file) => {
-                        this.sourceLoaded(source, file)
-                    }
-                )
-            }
+
+    async initialize() {
+        await Promise.all([this.fetchData(), ...this.sources.map(source => this.load(source))])
+        return this
+    }
+
+    async fetchData() {
+        const response = await fetch(`${import.meta.env.BASE_URL}conjunctions.json`, { signal: this.controller.signal })
+        if (!response.ok) throw new Error(`Dataset request failed: HTTP ${response.status}`)
+        this.data = validateDataset(await response.json())
+    }
+
+    async load(source) {
+        const key = `${source.type}:${source.path}`
+        if (!this.cache.has(key)) {
+            const loader = source.type === 'gltfModel' ? this.gltfLoader : this.textureLoader
+            this.cache.set(key, loader.loadAsync(`${import.meta.env.BASE_URL}${source.path}`))
         }
+        const file = await this.cache.get(key)
+        this.items[source.name] = source.type === 'gltfModel' ? { ...file, scene: clone(file.scene) } : file
     }
 
-    sourceLoaded(source, file) {
-        this.items[source.name] = file
-
-        this.loaded++
-
-        if (this.loaded === this.toLoad) {
-            this.trigger('ready')
-        }
-    }
-
-    fetchData() {
-        fetch("conjunctions.json")
-            .then(response => response.json())
-            .then(data => {
-                this.setData(data)
+    destroy() {
+        this.controller.abort()
+        // Includes late loader completions when the scene is removed during loading.
+        for (const promise of this.cache.values()) promise.then(file => {
+            if (file.isTexture) { file.dispose(); return }
+            const textures = new Set()
+            file.scene.traverse(node => {
+                node.geometry?.dispose()
+                for (const material of [].concat(node.material ?? [])) {
+                    Object.values(material).forEach(value => { if (value?.isTexture) textures.add(value) })
+                    material.dispose()
+                }
             })
-            .catch(error => {
-                // Handle any errors that occurred during the fetch
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }
-
-    setData(data) {
-        this.data = data
-
-        if (this.data) {
-            this.trigger('dataReady')
-        }
+            textures.forEach(texture => texture.dispose())
+        }).catch(() => {})
+        this.cache.clear()
     }
 }

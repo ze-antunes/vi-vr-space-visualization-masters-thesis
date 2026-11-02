@@ -1,3 +1,5 @@
+import { disposeUI } from '../../../Utils/Dispose'
+import { number } from '../../../Utils/Format'
 import * as THREE from 'three'
 import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
@@ -5,7 +7,7 @@ import FontJSON from '../../../../fonts/Roboto-msdf.json'
 import FontImage from '../../../../fonts/Roboto-msdf.png'
 
 export default class ObjectPopup {
-    constructor(title, objectInfo, object, view) {
+    constructor(title, view) {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.camera = this.experience.camera
@@ -17,8 +19,8 @@ export default class ObjectPopup {
         this.title = this.title.trim();
         this.title = this.title.charAt(0).toUpperCase() + this.title.slice(1);
         this.view = view
-        this.object = object
-        this.objectInfo = objectInfo
+        this.objectInfo = ''
+        this.cameraPosition = new THREE.Vector3()
         this.isOpen = false
 
         this.setTextures()
@@ -71,7 +73,7 @@ export default class ObjectPopup {
 
         title.add(
             new ThreeMeshUI.Text({ content: this.title }),
-            new ThreeMeshUI.Text({
+            this.nameText = this.cosparText = new ThreeMeshUI.Text({
                 content: "\n" + this.objectInfo,
                 fontSize: 0.05,
                 fontColor: new THREE.Color("#DEDEDE"),
@@ -152,8 +154,8 @@ export default class ObjectPopup {
                 fontSize: 0.045,
                 fontColor: new THREE.Color("#DEDEDE"),
             }),
-            new ThreeMeshUI.Text({
-                content: "\n0.70 m",
+            this.spanText = new ThreeMeshUI.Text({
+                content: "\nNot available",
                 fontSize: 0.06
             }),
         );
@@ -175,8 +177,8 @@ export default class ObjectPopup {
                 fontSize: 0.045,
                 fontColor: new THREE.Color("#DEDEDE"),
             }),
-            new ThreeMeshUI.Text({
-                content: "\n4.00 kg",
+            this.massText = new ThreeMeshUI.Text({
+                content: "\nNot available",
                 fontSize: 0.06
             }),
         );
@@ -189,18 +191,33 @@ export default class ObjectPopup {
     }
 
     hide() {
-        this.mesh.scale.set(0, 0, 0)
+        this.mesh.visible = false
         this.isOpen = false
     }
 
     show() {
+        this.mesh.visible = true
         this.mesh.scale.set(0.5, 0.5, 0.5)
         this.isOpen = true
     }
 
     update() {
-        // console.log("objectpopup update()")
-        this.mesh.position.set(this.object.model.position.x, this.object.model.position.y, this.object.model.position.z)
-        this.mesh.lookAt(this.camera.object3D.position.x, this.camera.object3D.position.y, this.camera.object3D.position.z)
+        if (!this.isOpen) return
+        this.mesh.position.set(0, 0.12, 0)
+        this.experience.aframeScene.camera.getWorldPosition(this.cameraPosition)
+        this.mesh.lookAt(this.cameraPosition)
     }
+
+    setData(data) {
+        this.nameText.set({ content: "\n" + data.name })
+        this.cosparText.set({ content: "\n" + (data.cospar_id ?? 'Not available') })
+        this.spanText.set({ content: "\n" + number(data.geometry?.span?.value) + ' m' })
+        this.massText.set({ content: "\n" + number(data.mass?.current) + ' kg' })
+    }
+
+    destroy() {
+        disposeUI(this.mesh, this.experience.raycaster)
+        this.mesh = null
+    }
+
 }

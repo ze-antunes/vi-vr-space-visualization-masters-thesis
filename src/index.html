@@ -1,105 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VR Satellite Visualization</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto"
-      rel="stylesheet"
-    />
-    <script type="module">
-      import * as THREE from "three";
-      export default THREE;
-    </script>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.misc.min.js"></script>
-    <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
-    <script src="https://unpkg.com/aframe-event-set-component@4.2.1/dist/aframe-event-set-component.min.js"></script>
-    <link rel="stylesheet" href="./style.css" />
-  </head>
-  <body>
-    <a-scene
-      id="myScene"
-      light="defaultLightsEnabled: true"
-      renderer="antialias: true"
-      cursor="rayOrigin:mouse"
-    >
-      <!-- Visualization  -->
-      <a-box
-        id="collisionBox"
-        position="0 1.5 -1.5"
-        width="0"
-        height="0"
-        depth="0"
-      >
-        <!-- Globe  -->
-        <a-sphere
-          position="0 0 0"
-          id="globe"
-          grabbable
-          stretchable
-          draggable
-          scale="0.7 0.7 0.7"
-          width="1.98"
-          height="1.98"
-          depth="1.98"
-          material="opacity: 0.0"
-        >
-          <a-box
-            id="globe-target"
-            material="visible: false; opacity: 0.0; wireframe: true"
-          >
-          </a-box>
-          <a-entity id="globe-target-posmanoeuvre"></a-entity>
-          <a-entity id="globe-chaser"> </a-entity>
-        </a-sphere>
-
-        <!-- Room  -->
-        <a-entity position="5 0 0" scale="0 0 0" id="room">
-          <a-box
-            grabbable
-            stretchable
-            draggable
-            material="visible: false; opacity: 0.0; wireframe: true"
-            id="room-conjunction"
-          >
-            <a-entity id="room-target"> </a-entity>
-            <a-entity id="room-target-posmanoeuvre"></a-entity>
-            <a-entity id="room-chaser"> </a-entity>
-          </a-box>
-        </a-entity>
-      </a-box>
-
-      <!-- User entity  -->
-      <a-entity>
-        <a-entity
-          position="0 1.6 0"
-          id="myCamera"
-          camera
-          wasd-controls
-          look-controls
-        ></a-entity>
-        <a-entity
-          id="rightController"
-          sphere-collider="objects: #globe, #room-conjunction"
-          super-hands
-          oculus-touch-controls="hand: right"
-          hand-controls="hand: right"
-          raycaster="showLine: false; objects: #globe, #room, #collisionBox"
-        ></a-entity>
-        <a-entity
-          id="leftController"
-          sphere-collider="objects: #globe, #room-conjunction"
-          super-hands
-          oculus-touch-controls="hand: left"
-          hand-controls="hand: left"
-          raycaster="showLine: false; objects: #globe, #room, #collisionBox"
-        >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore satellite conjunction snapshots and compare avoidance manoeuvres on desktop and in WebXR." />
+  <title>VR Satellite Visualization</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <a-scene id="myScene" renderer="antialias: true; colorManagement: true" background="color: #000011" loading-screen="enabled: false" xr-mode-ui="XRMode: vr">
+    <a-entity id="collisionBox" position="0 1.5 -1.5">
+      <a-entity id="globe" scale="0.7 0.7 0.7">
+        <a-entity id="globe-target"></a-entity>
+        <a-entity id="globe-target-posmanoeuvre"></a-entity>
+        <a-entity id="globe-chaser"></a-entity>
+      </a-entity>
+      <a-entity id="room" visible="false">
+        <a-entity id="room-conjunction">
+          <a-entity id="room-target"></a-entity>
+          <a-entity id="room-target-posmanoeuvre"></a-entity>
+          <a-entity id="room-chaser"></a-entity>
         </a-entity>
       </a-entity>
-    </a-scene>
-
+    </a-entity>
+    <a-entity id="myCamera" camera="fov: 60" position="0 1.6 0" look-controls wasd-controls></a-entity>
+    <a-entity id="rightController" meta-touch-controls="hand: right">
+      <a-entity line="start: 0 0 0; end: 0 0 -3; color: #81c9ff; opacity: 0.5"></a-entity>
+    </a-entity>
+    <a-entity id="leftController" meta-touch-controls="hand: left">
+      <a-entity line="start: 0 0 0; end: 0 0 -3; color: #96df92; opacity: 0.5"></a-entity>
+    </a-entity>
+  </a-scene>
     <!-- Loading Screen  -->
     <div id="loader" class="loadingScreen">
       <div class="load">
@@ -127,8 +58,10 @@
         <label id="progress-bar-label" for="progress-bar">0 %</label>
         <progress id="progress-bar" value="0" max="100"></progress>
       </div>
+      <p id="loading-error" role="alert"></p>
+      <button id="retry" hidden>Try again</button>
     </div>
 
-    <script type="module" src="./script.js"></script>
-  </body>
+  <script type="module" src="./script.js"></script>
+</body>
 </html>

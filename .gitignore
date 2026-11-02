@@ -18,3 +18,7 @@ out/
 .DS_Store
 Thumbs.db
 .vercel
+
+# Browser test artifacts
+playwright-report/
+test-results/

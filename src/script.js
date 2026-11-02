@@ -1,39 +1,34 @@
-"use strict"
-import Experience from "./Experience/Experience";
+import AFRAME from 'aframe'
+import Experience from './Experience/Experience'
 
+AFRAME.registerComponent('experience-driver', {
+    tick(time, delta) { window.experience?.update(time, delta) },
+    remove() { window.experience?.destroy() }
+})
 
-window.addEventListener("load", function (event) {
-
-    // Get the A-Frame scene element
-    let aframeScene = document.querySelector('#myScene');
-    // console.log(aframeScene);
-
-    // Scene
-    // Access the underlying Three.js scene object
-    let scene = aframeScene.object3D;
-    scene.castShadow = true;
-    scene.shadow = true;
-
-    let aframeCamera = document.getElementById("myCamera")
-    let rightHand = document.getElementById("rightController")
-    let leftHand = document.getElementById("leftController")
-
-    let experience = new Experience(aframeScene, scene, aframeCamera, rightHand, leftHand)
-});
-
-let stats = false
-let scene = document.querySelector('#myScene');
-
-document.addEventListener("keydown", function (e) {
-    if (e.key === "e") {
-        if (stats == false) {
-            // console.log(stats, "add")
-            scene.setAttribute("stats", "")
-        }
-        else {
-            // console.log(stats, "remove")
-            scene.removeAttribute("stats")
-        }
-        stats = !stats
-    }
-});
+const scene = document.getElementById('myScene')
+let started = false
+function start() {
+    if (started || !scene.renderer || !scene.camera) return
+    started = true
+    new Experience(scene, scene.object3D, document.getElementById('myCamera'), document.getElementById('rightController'), document.getElementById('leftController'))
+    scene.setAttribute('experience-driver', '')
+}
+scene.addEventListener('renderstart', start, { once: true })
+start()
+document.getElementById('retry').addEventListener('click', () => window.location.reload())
+document.addEventListener('keydown', event => {
+    if (event.repeat || event.target?.matches?.('input, select, textarea, button')) return
+    const world = window.experience?.world
+    if (!world || world.conjunctionsMenu.header.searchPopup?.panel.isOpen) return
+    if (event.code === 'Space') { event.preventDefault(); world.togglePlayback() }
+    if (event.key.toLowerCase() === 't') world.seek(world.activeSlot, 0)
+    if (event.key.toLowerCase() === 'c') world.toggleComparison()
+    if (event.key.toLowerCase() === 'f') world.controls.toggleCompact()
+    if (event.key === '[' || event.key === ']') world.stepSlot(world.activeSlot, (event.key === '[' ? -1 : 1) * (world.view === 'globe' ? 60 : 0.1))
+    if (event.key.toLowerCase() === 'e') scene.hasAttribute('stats') ? scene.removeAttribute('stats') : scene.setAttribute('stats', '')
+    if (event.key.toLowerCase() === 'r') world.reset()
+    if (event.key.toLowerCase() === 'u') { world.showCovariance = !world.showCovariance; world.refresh() }
+    if (event.key.toLowerCase() === 'p') { world.showProjections = !world.showProjections; world.refresh() }
+    if (event.key.toLowerCase() === 'm') { world.handMenus = !world.handMenus; world.layoutCatalog() }
+})

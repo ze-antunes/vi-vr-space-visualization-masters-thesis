@@ -1,174 +1,92 @@
-import * as THREE from 'three'
 import ThreeMeshUI from 'three-mesh-ui'
-import Experience from "../../../Experience"
 import ConjunctionCard from './ConjunctionCard'
 import ManoeuvreCard from './ManoeuvreCard'
-import Pages from "./Pages"
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import Pages from './Pages'
+import { disposeUI } from '../../../Utils/Dispose'
+import { pageWindow } from '../../../Utils/Pagination'
 
-export default class Grid { 
-    constructor(parentMesh, data, cardType, maxCardsLength, numbCards, parentPanel) {
-        this.experience = new Experience()
-        this.scene = this.experience.scene
-        this.time = this.experience.time
-        this.resources = this.experience.resources
-        this.debug = this.experience.debug
-        
-        // Setup 
-        this.parentMesh = parentMesh
+export default class Grid {
+    constructor(panel, data, pageSize) {
+        this.panel = panel
+        this.experience = panel.experience
         this.data = data
-        this.cardType = cardType
-        this.cardsCreated = 0
-        this.maxCardsLength = maxCardsLength
-        this.numbCards = numbCards
-        this.parentPanel = parentPanel
+        this.entries = data.map((value, index) => ({ value, index }))
+        this.pageSize = pageSize
+        this.columns = 1
+        this.rows = []
+        this.numbCards = pageSize
         this.startIndex = 0
         this.cards = []
-
-        this.setMesh()
-        this.setPages()
+        this.selectedIndex = null
+        this.grid = new ThreeMeshUI.Block({ width: 1.2, justifyContent: 'center', contentDirection: 'column', margin: 0.02, backgroundOpacity: 0 })
+        panel.mesh.add(this.grid)
+        this.setCards(0)
+        this.pages = new Pages(panel.mesh, data.length, this.status, this)
+        this.pages.update()
     }
-
-    setMesh() {
-        this.grid = new ThreeMeshUI.Block({
-            width: 1.2,
-            justifyContent: 'center',
-            contentDirection: 'column',
-            margin: 0.02,
-            backgroundOpacity: 0
-        });
-
-        this.parentMesh.add(this.grid)
-        this.setCards(this.startIndex)
-        // console.log(this.grid.children.length)
-        // console.log(this.grid.children)
-    }
-
-    setCards(startIndex) {
-        let id = 0;
-        for (let i = startIndex; i < Math.min(startIndex + this.numbCards, this.maxCardsLength); i++) {
-            if (this.cardType === 'manoeuvreCard') {
-                this.createCard(this.data[i], id);
-            } else {
-                this.createCard(this.data[i], id);
+    setCards(requested) {
+        this.cards.forEach(card => card.destroy())
+        this.cards = []
+        this.rows.forEach(row => disposeUI(row))
+        this.rows = []
+        if (this.empty) { disposeUI(this.empty); this.empty = null }
+        this.window = pageWindow(this.entries.length, this.numbCards, requested)
+        this.startIndex = this.window.start
+        const Card = this.panel.cardType === 'conjunctionCard' ? ConjunctionCard : ManoeuvreCard
+        for (const [offset, entry] of this.entries.slice(this.window.start, this.window.end).entries()) {
+            if (this.columns === 2 && offset % 2 === 0) {
+                const row = new ThreeMeshUI.Block({ width: 2.55, contentDirection: 'row', justifyContent: 'center', backgroundOpacity: 0 })
+                this.rows.push(row)
+                this.grid.add(row)
             }
-            id++;
+            const parent = this.columns === 2 ? this.rows.at(-1) : this.grid
+            const card = new Card(parent, entry.value, entry.index, this.panel)
+            card.setActive(entry.index === this.selectedIndex)
+            this.cards.push(card)
         }
-        this.updateStatus(startIndex)
-    }
-
-    setPages() {
-        this.pages = new Pages(this.parentMesh, this.maxCardsLength, this.status, this)
-    }
-
-    createCard(cardInfo, id) {
-        if (this.cardType === 'conjunctionCard') {
-            this.card = new ConjunctionCard(this.grid, cardInfo, id, this.parentPanel)
-        } else if (this.cardType === 'manoeuvreCard') {
-            // console.log(this.panel)
-            this.card = new ManoeuvreCard(this.grid, cardInfo, id, this.parentPanel)
+        if (!this.entries.length) {
+            this.empty = new ThreeMeshUI.Block({ width: 1.25, height: 0.25, backgroundOpacity: 0 })
+            this.empty.add(new ThreeMeshUI.Text({ content: 'No matching records' }))
+            this.grid.add(this.empty)
         }
-        this.cards.push(this.card)
-        this.cardsCreated++
-
-        // // this.mergedGeometry = BufferGeometryUtils.mergeGeometries(geometries)
-        // if (this.cardsCreated === this.maxCardsLength) {
-        //     console.log("All cards created")
-        // }
+        this.status = this.entries.length ? `${this.window.start + 1}-${this.window.end} of ${this.entries.length}` : '0 records'
+        this.pages?.update()
+        // Adding Block children does not invalidate an unchanged parent layout in
+        // three-mesh-ui. Filters with the same result count still need a reflow.
+        this.panel.mesh.update(false, true, false)
     }
-
-    updateStatus(startIndex) {
-        let endIndex = Math.min(startIndex + this.numbCards, this.maxCardsLength);
-        this.status = `${startIndex + 1} - ${endIndex} of ${this.maxCardsLength}`;
+    toggleColumns() {
+        this.columns = this.columns === 1 ? 2 : 1
+        this.numbCards = this.pageSize * this.columns
+        this.grid.set({ width: this.columns === 1 ? 1.2 : 2.55 })
+        this.experience.world.layoutCatalog()
+        this.setCards(Math.floor(this.startIndex / this.numbCards) * this.numbCards)
     }
-
-    previousCards() {
-        this.startIndex = Math.max(this.startIndex - this.numbCards, 0);
-        this.setCards(this.startIndex);
-        // nextButton.disabled = false;
-        if (this.startIndex === 0) {
-            // prevButton.disabled = true;
-            // console.log("prevButton.disabled = true")
-        }
+    setSort(key) {
+        const value = item => key === 'poc' ? item.collision_avoidance.poc : key === 'miss' ? -item.collision_avoidance.miss_distance.total : (item.sum_total_delta_v ?? Infinity)
+        this.entries.sort((a, b) => value(a.value) - value(b.value) || a.index - b.index)
+        this.setCards(0)
     }
-
-    setActiveCard(selectedCard) {
-        this.cards.forEach(card => {
-            card.setActive(card === selectedCard);
-        });
+    setFilter(query) {
+        const term = query.trim().toLowerCase()
+        this.entries = this.data.map((value, index) => ({ value, index })).filter(({ value }) =>
+            `${value.target?.name ?? ''} ${value.chaser?.name ?? ''} ${value.target?.cospar_id ?? ''} ${value.chaser?.cospar_id ?? ''}`.toLowerCase().includes(term))
+        this.setCards(0)
     }
-
-    nextCards() {
-        this.startIndex += this.numbCards;
-        this.setCards(this.startIndex)
-        // prevButton.disabled = false;
-        if (this.startIndex + this.numbCards >= this.maxCardsLength) {
-            // nextButton.disabled = true;
-            // console.log("nextButton.disabled = true")
-        }
+    markSelected(index) {
+        this.selectedIndex = index
+        const entry = this.entries.findIndex(entry => entry.index === index)
+        if (entry >= 0 && (entry < this.window.start || entry >= this.window.end)) this.setCards(entry)
+        this.cards.forEach(card => card.setActive(card.id === index))
     }
-
+    previousCards() { this.setCards(this.startIndex - this.numbCards) }
+    nextCards() { this.setCards(this.startIndex + this.numbCards) }
     destroy() {
-        // console.log("Grid destroy")
-
-        // Dispose of all cards
-        this.cards.forEach(card => {
-            if (card.destroy) {
-                card.destroy();
-            }
-        });
-        
-
-        if (this.pages)
-            this.pages.destroy()
-
-        // Dispose of ThreeMeshUI blocks, geometries, and materials
-        this.disposeMeshUI(this.grid);
-
-        // Remove the grid from the panel
-        if (this.parentMesh.children) {
-            let index = this.parentMesh.children.indexOf(this.grid);
-            if (index !== -1) {
-                this.parentMesh.children.splice(index, 1);
-            }
-        }
-
-        // Dispose pages
-        if (this.pages && this.pages.destroy) {
-            this.pages.destroy();
-        }
-
-        // Clear references
-        this.cards = [];
-        this.grid = null;
-        this.parentMesh = null;
-        this.pages = null;
-    }
-
-    disposeMeshUI(block) {
-        if (block) {
-            // Recursively dispose children
-            if (block.children) {
-                block.children.forEach(child => {
-                    this.disposeMeshUI(child);
-                });
-            }
-
-            // Dispose of the block itself
-            if (block.geometry) {
-                block.geometry.dispose();
-            }
-            if (block.material) {
-                // If material is an array, dispose each material
-                if (Array.isArray(block.material)) {
-                    block.material.forEach(material => material.dispose());
-                } else {
-                    block.material.dispose();
-                }
-            }
-            if (block.texture) {
-                block.texture.dispose();
-            }
-        }
+        if (!this.grid) return
+        this.cards.forEach(card => card.destroy())
+        this.cards = []
+        this.pages?.destroy()
+        disposeUI(this.grid, this.experience.raycaster)
+        this.grid = null
     }
 }

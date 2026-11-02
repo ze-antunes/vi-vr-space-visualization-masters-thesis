@@ -1,11 +1,13 @@
-// import * as THREE from 'three'
-import ThreeMeshUI, { update } from 'three-mesh-ui'
+import { disposeUI } from '../../../Utils/Dispose'
+import * as THREE from 'three'
+import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
 import ConjunctionInfo from './ConjunctionInfo'
 import ManoeuvreInfo from './ManoeuvreInfo'
+import SearchPopup from './SearchPopup'
 
 export default class Header {
-    constructor(panel, title, cardType) {
+    constructor(panel, title, cardType, owner) {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.time = this.experience.time
@@ -14,6 +16,7 @@ export default class Header {
 
         // Setup 
         this.panel = panel
+        this.owner = owner
         this.title = title
         this.cardType = cardType
         this.objsToTest = this.experience.raycaster.objsToTest
@@ -116,20 +119,11 @@ export default class Header {
 
         this.info.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                this.infoOpen = !this.infoOpen
-
-                if (this.infoOpen) {
-                    // console.log("open info " + this.title)
-                    this.infoPopup.show()
-                }
-                else {
-                    // console.log("close info " + this.title)
-                    this.infoPopup.hide()
-                }
-            }
+            attributes: selectedAttributes
         });
+        this.info.onActivate = () => {
+            this.experience.world.controls?.setTab('help')
+        }
         this.info.setupState(hoveredStateAttributes);
         this.info.setupState(idleStateAttributes);
 
@@ -146,15 +140,17 @@ export default class Header {
 
             this.columns.setupState({
                 state: 'selected',
-                attributes: selectedAttributes,
-                onSet: () => {
-                    console.log("test columns")
-                }
+                attributes: selectedAttributes
             });
 
             this.columns.setupState(hoveredStateAttributes);
             this.columns.setupState(idleStateAttributes);
 
+            this.columns.setupState({ state: 'disabled', attributes: { backgroundOpacity: 0.5 } })
+            this.columns.onActivate = () => {
+                this.owner.grid.toggleColumns()
+                this.columns.set({ backgroundTexture: this.owner.grid.columns === 2 ? this.textures.twoColumnsIcon : this.textures.oneColumnIcon })
+            }
             options.add(this.columns, this.info)
             this.objsToTest.push(this.columns, this.info)
         }
@@ -171,15 +167,17 @@ export default class Header {
 
             this.search.setupState({
                 state: 'selected',
-                attributes: selectedAttributes,
-                onSet: () => {
-                    console.log("develop search bar + keyboard")
-                }
+                attributes: selectedAttributes
             });
 
             this.search.setupState(hoveredStateAttributes);
             this.search.setupState(idleStateAttributes);
 
+            this.search.setupState({ state: 'disabled', attributes: { backgroundOpacity: 0.5 } })
+            this.search.onActivate = () => {
+                this.searchPopup ??= new SearchPopup(this.owner)
+                this.searchPopup.toggle()
+            }
             options.add(this.search, this.info)
             this.objsToTest.push(this.search, this.info)
         }
@@ -196,56 +194,10 @@ export default class Header {
     }
 
     destroy() {
-        // Remove infoPopup
-        if (this.infoPopup) {
-            this.infoPopup.hide();
-            // this.infoPopup = null;
-        }
-
-        // Remove header from panel
-        if (this.panel && this.header) {
-            this.panel.remove(this.header);
-        }
-
-        // Remove blocks from scene and dispose them
-        if (this.header) {
-            this.header.children.forEach(child => {
-                if (child instanceof ThreeMeshUI.Block) {
-                    child.children.forEach(grandchild => {
-                        if (grandchild.material) {
-                            grandchild.material.dispose();
-                        }
-                        if (grandchild.geometry) {
-                            grandchild.geometry.dispose();
-                        }
-                        child.remove(grandchild);
-                    });
-                }
-                this.header.remove(child);
-            });
-        }
-
-        // Remove from raycaster objects to test
-        this.objsToTest = this.objsToTest.filter(obj => obj !== this.info && obj !== this.columns && obj !== this.search);
-
-        // Dispose textures
-        Object.values(this.textures).forEach(texture => {
-            if (texture && texture.dispose) {
-                texture.dispose();
-            }
-        });
-
-        // Nullify references
-        this.header = null;
-        this.info = null;
-        this.columns = null;
-        this.search = null;
-        this.panel = null;
-        this.textures = null;
-        this.experience = null;
-        this.scene = null;
-        this.time = null;
-        this.resources = null;
-        this.debug = null;
+        this.searchPopup?.destroy()
+        if (this.infoPopup?.mesh) disposeUI(this.infoPopup.mesh, this.experience.raycaster)
+        disposeUI(this.header, this.experience.raycaster)
+        this.header = null
+        this.infoPopup = null
     }
 }

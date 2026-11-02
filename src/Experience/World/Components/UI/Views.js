@@ -1,3 +1,4 @@
+import { disposeUI } from '../../../Utils/Dispose'
 import * as THREE from 'three'
 import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
@@ -138,26 +139,20 @@ export default class Views {
 
         this.globeViewButton.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                this.roomView.hide()
-                this.globeView.show()
-            }
+            attributes: selectedAttributes
         });
         this.globeViewButton.setupState(hoveredStateAttributes)
         this.globeViewButton.setupState(idleStateAttributes)
 
         this.roomViewButton.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                this.globeView.hide()
-                this.roomView.show()
-            }
+            attributes: selectedAttributes
         });
         this.roomViewButton.setupState(hoveredStateAttributes)
         this.roomViewButton.setupState(idleStateAttributes)
         
+        this.globeViewButton.onActivate = () => this.experience.world.setView('globe')
+        this.roomViewButton.onActivate = () => this.experience.world.setView('room')
         footerOptions.add(this.globeViewButton, this.roomViewButton)
         footer.add(footerTitle, footerOptions)
         this.panel.add(footer)

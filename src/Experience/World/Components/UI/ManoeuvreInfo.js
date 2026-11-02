@@ -141,7 +141,7 @@ export default class ManoeuvreInfo {
 
         minorConcernStatus.add(
             new ThreeMeshUI.Text({
-                content: "Minor Concern",
+                content: "Impulsive",
                 fontSize: 0.05
             }),
         );
@@ -181,7 +181,7 @@ export default class ManoeuvreInfo {
 
         noThreatStatus.add(
             new ThreeMeshUI.Text({
-                content: "No Threat",
+                content: "Differential Drag",
                 fontSize: 0.05
             }),
         );

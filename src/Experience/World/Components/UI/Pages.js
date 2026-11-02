@@ -1,3 +1,4 @@
+import { disposeUI } from '../../../Utils/Dispose'
 import * as THREE from 'three'
 import ThreeMeshUI from 'three-mesh-ui'
 import Experience from "../../../Experience"
@@ -29,7 +30,7 @@ export default class Pages {
     }
 
     setMesh() {
-        let buttons = new ThreeMeshUI.Block({
+        let buttons = this.buttons = new ThreeMeshUI.Block({
             width: 1,
             height: 0.15,
             justifyContent: 'center',
@@ -85,7 +86,7 @@ export default class Pages {
         this.buttonPrevious = new ThreeMeshUI.Block(buttonOptions);
 
         this.pages.add(
-            new ThreeMeshUI.Text({ content: this.status })
+            this.statusText = new ThreeMeshUI.Text({ content: this.status })
         );
 
         let selectedAttributes = {
@@ -96,12 +97,7 @@ export default class Pages {
 
         this.buttonNext.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                console.log("bottonNext")
-                // console.log(this.buttonNext)
-                // this.grid.nextCards()
-            }
+            attributes: selectedAttributes
         });
         this.buttonNext.setupState(hoveredStateAttributes);
         this.buttonNext.setupState(idleStateAttributes);
@@ -110,11 +106,7 @@ export default class Pages {
 
         this.buttonPrevious.setupState({
             state: 'selected',
-            attributes: selectedAttributes,
-            onSet: () => {
-                console.log("buttonPrevious")
-                // this.grid.previousCards()
-            }
+            attributes: selectedAttributes
         });
         this.buttonPrevious.setupState(hoveredStateAttributes);
         this.buttonPrevious.setupState(idleStateAttributes);
@@ -127,55 +119,26 @@ export default class Pages {
             backgroundTexture: this.textures.leftArrowIcon,
         });
 
+        this.buttonNext.onActivate = () => this.grid.nextCards()
+        this.buttonPrevious.onActivate = () => this.grid.previousCards()
+        for (const button of [this.buttonNext, this.buttonPrevious]) {
+            button.setupState({ state: 'disabled', attributes: { backgroundOpacity: 0.3 } })
+        }
         buttons.add(this.buttonNext, this.pages, this.buttonPrevious);
         this.panel.add(buttons)
         this.objsToTest.push(this.buttonNext, this.buttonPrevious)
     }
 
+    update() {
+        this.statusText.set({ content: this.grid.status })
+        for (const [button, enabled] of [[this.buttonPrevious, this.grid.window.previous], [this.buttonNext, this.grid.window.next]]) {
+            button.disabled = !enabled
+            button.setState(enabled ? 'idle' : 'disabled')
+        }
+    }
+
     destroy() {
-        // Remove from raycaster objects to test
-        this.objsToTest = this.objsToTest.filter(obj => obj !== this.buttonNext && obj !== this.buttonPrevious);
-
-        // Remove buttons from panel
-        if (this.panel && this.buttons) {
-            this.panel.remove(this.buttons);
-        }
-
-        // Dispose buttons and pages
-        [this.buttonNext, this.buttonPrevious, this.pages].forEach(block => {
-            if (block && block.children) {
-                block.children.forEach(child => {
-                    if (child.material) {
-                        child.material.dispose();
-                    }
-                    if (child.geometry) {
-                        child.geometry.dispose();
-                    }
-                    block.remove(child);
-                });
-            }
-        });
-
-        // Dispose textures
-        if (this.textures) {
-            Object.values(this.textures).forEach(texture => {
-                if (texture && texture.dispose) {
-                    texture.dispose();
-                }
-            });
-        }
-
-        // Nullify references
-        this.buttons = null;
-        this.buttonNext = null;
-        this.buttonPrevious = null;
-        this.pages = null;
-        this.panel = null;
-        this.textures = null;
-        this.experience = null;
-        this.scene = null;
-        this.time = null;
-        this.resources = null;
-        this.debug = null;
+        disposeUI(this.buttons, this.experience.raycaster)
+        this.buttons = null
     }
 }
