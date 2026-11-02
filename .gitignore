@@ -10,6 +10,7 @@ vendor/
 dist/
 build/
 out/
+test-results/
 
 # Environment variables
 .env

@@ -169,17 +169,19 @@ Visualization_of_Information_in_VR_Environments_of_Objects_in_Space/
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/your-username/Visualization_of_Information_in_VR_Environments_of_Objects_in_Space.git
-   cd Visualization_of_Information_in_VR_Environments_of_Objects_in_Space
+   git clone --branch v1.0_september_2024 https://github.com/ze-antunes/vi-vr-space-visualization-masters-thesis.git
+   cd vi-vr-space-visualization-masters-thesis
    ```
 2. **Install dependencies:**
    ```sh
-   npm install
+   npm ci
    ```
 3. **Run the application:**
    ```sh
    npm run dev
    ```
+
+When switching between `v1.0_september_2024` and `v2.0_november_2026`, stop the development server, run `npm ci` again, then restart with `npm run dev`. Each branch uses different dependency versions; Git does not switch the contents of `node_modules`. Use the committed `package-lock.json` to reproduce this version without upgrading its dependencies.
 
 ### Additional Setup
 
