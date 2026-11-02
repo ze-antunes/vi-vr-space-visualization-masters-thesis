@@ -1,0 +1,55 @@
+* {
+  box-sizing: border-box;
+}
+
+#html-container {
+  width: 400px;
+  float: left;
+  background-color: transparent;
+  color: #d8dadb;
+  max-height: 480px;
+  overflow: scroll;
+}
+
+#batata {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+li {
+  padding: 5px 0;
+}
+
+#aframe-container {
+  float: left;
+  border: 3px solid black;
+}
+
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 15px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+}
+
+.accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  padding: 0 18px;
+  display: none;
+  background-color: white;
+  overflow: hidden;
+}
+
+p {
+  color: black;
+}

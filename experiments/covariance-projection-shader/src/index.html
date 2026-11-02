@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VR Satellite Visualization</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto"
+      rel="stylesheet"
+    />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.misc.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a-scene
+      id="myScene"
+      light="defaultLightsEnabled: true"        
+      renderer="antialias: true"
+    >
+      <a-box
+        id="collisionBox"
+        position="0 1.5 -1.5"
+        width="0"
+        height="0"
+        depth="0"
+      >
+        <a-entity
+          position="0 0 0"
+          id="globe"
+          scale="0.7 0.7 0.7"
+          three-js-globe
+        >
+        </a-entity>
+        <a-entity position="5 0 0" id="room" three-js-room></a-entity>
+      </a-box>
+
+      <a-entity>
+        <a-entity
+          position="0 1.6 0"
+          id="myCamera"
+          camera
+          wasd-controls
+          look-controls
+        ></a-entity>
+        <a-entity
+          id="rightController"
+          oculus-touch-controls="hand: right"
+          raycaster="showLine: false; objects: #globe, #room, #collisionBox"
+        ></a-entity>
+        <a-entity
+          id="leftController"
+          oculus-touch-controls="hand: left"
+          raycaster="showLine: false; objects: #globe, #room, #collisionBox"
+        ></a-entity>
+      </a-entity>
+    </a-scene>
+
+    <div id="loader" class="loadingScreen">
+      <div class="load">
+        <div class="scene">
+          <div class="shadow"></div>
+          <div class="jumper">
+            <div class="spinner">
+              <div class="scaler">
+                <div class="loader">
+                  <div class="cuboid">
+                    <div class="cuboid__side"></div>
+                    <div class="cuboid__side"></div>
+                    <div class="cuboid__side"></div>
+                    <div class="cuboid__side"></div>
+                    <div class="cuboid__side"></div>
+                    <div class="cuboid__side"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="progress-bar-container">
+        <label id="progress-bar-label" for="progress-bar">0 %</label>
+        <progress id="progress-bar" value="0" max="100"></progress>
+      </div>
+    </div>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

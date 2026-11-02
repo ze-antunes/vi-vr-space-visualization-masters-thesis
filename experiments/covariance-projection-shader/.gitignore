@@ -1,0 +1,20 @@
+# Logs
+logs
+*.log
+
+# Dependency directories
+node_modules/
+vendor/
+
+# Built artifacts
+dist/
+build/
+out/
+
+# Environment variables
+.env
+
+# Operating System files
+.DS_Store
+Thumbs.db
+.vercel

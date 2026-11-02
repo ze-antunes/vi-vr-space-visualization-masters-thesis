@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EXP Aframe Globe</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.misc.min.js"></script>
+    <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a-scene id="myScene" light="defaultLightsEnabled: false">
+      <a-box
+        id="collisionBox"
+        position="0 1.5 -1.5"
+        opacity="0"
+        grabbable
+        stretchable
+        draggable
+        ><a-entity id="globe" scale="0.7 0.7 0.7" three-js-globe> </a-entity>
+      </a-box>
+
+      <a-entity>
+        <a-camera id="myCamera" camera wasd-controls look-controls></a-camera>
+        <!-- Super Hands  -->
+        <!-- <a-entity
+          sphere-collider="objects: a-box"
+          super-hands
+          hand-controls="hand: left"
+        ></a-entity>
+        <a-entity
+          sphere-collider="objects: a-box"
+          super-hands
+          hand-controls="hand: right"
+        ></a-entity> -->
+
+        <!-- Oculus Controllers  -->
+        <a-entity
+          oculus-touch-controls="hand: left"
+          id="leftController"
+        ></a-entity>
+        <a-entity
+          oculus-touch-controls="hand: right"
+          id="rightController"
+          thumbstick-logging
+        ></a-entity>
+
+      </a-entity>
+    </a-scene>
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

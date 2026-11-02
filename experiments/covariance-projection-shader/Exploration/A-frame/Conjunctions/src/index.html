@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exploration Aframe Conjunctions Dev</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.3.3/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-blink-controls/dist/aframe-blink-controls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.misc.min.js"></script>
+    <script src="https://unpkg.com/super-hands@^3.0.3/dist/super-hands.min.js"></script>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a-scene
+      light="defaultLightsEnabled: false"
+      background="color: black"
+      id="myScene"
+    >
+      <a-assets>
+        <a-asset-item
+          id="globeModel"
+          src="https://raw.githubusercontent.com/ze-antunes/ARVI_Assets/main/3D_Models/earth_globe/scene.gltf"
+        >
+        </a-asset-item>
+      </a-assets>
+
+      <!-- <a-entity shadow="receive: true" environment></a-entity> -->
+
+      <!-- <a-entity
+        id="target"
+        position="0 1 -3"
+        hoverable
+        grabbable
+        stretchable
+        draggable
+        droppable
+        three-js-target
+      ></a-entity>
+
+      <a-entity
+        id="chaser"
+        position="0 1 -3"
+        hoverable
+        grabbable
+        stretchable
+        draggable
+        droppable
+        three-js-chaser
+      ></a-entity>
+
+      <a-box
+        hoverable
+        grabbable
+        stretchable
+        draggable
+        droppable
+        shadow="receive: false"
+        color="blue"
+        position="0 1 -2"
+        id="myEntityTest"
+        three-js-test
+      ></a-box> -->
+
+      <a-entity
+        hoverable
+        grabbable
+        stretchable
+        draggable
+        droppable
+        id="conjunction"
+        position="0 0 0"
+        three-js-conjunction
+      >
+        <!-- Target  -->
+        <a-sphere
+          id="target"
+          shadow="receive: false"
+          three-js-target
+        ></a-sphere>
+        <a-entity id="targetCovariance" three-js-target-covariance></a-entity>
+
+        <!-- Chaser  -->
+        <a-sphere
+          id="chaser"
+          shadow="receive: false"
+          three-js-chaser
+        ></a-sphere>
+        <a-entity id="chaserCovariance" three-js-chaser-covariance></a-entity>
+
+        <!-- Intersection  -->
+        <a-entity
+          id="intersection"
+          shadow="receive: false"
+          three-js-intersection
+        ></a-entity>
+      </a-entity>
+
+      <a-entity>
+        <a-camera position="3 3 6" id="myCamera" camera wasd-controls look-controls></a-camera>
+        <a-entity
+          sphere-collider="objects: a-box, a-sphere, a-entity#conjunction"
+          super-hands
+          hand-controls="hand: left"
+        ></a-entity>
+        <a-entity
+          sphere-collider="objects: a-box, a-sphere, a-entity#conjunction"
+          super-hands
+          hand-controls="hand: right"
+          laser-controls="hand: right"
+        ></a-entity>
+        <!-- blink-controls="collisionEntities: a-plane,[color='red']" -->
+      </a-entity>
+    </a-scene>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

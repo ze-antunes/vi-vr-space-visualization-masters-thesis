@@ -1,0 +1,357 @@
+{
+  "conjucntions": [
+    {
+      "id": "01HRRZF6Q22TSQKZMTRZ442DJ9",
+      "target": {
+        "id": "01H81FWYPJ2C0G6FHVKRQKCJA2",
+        "name": "AllSat"
+      },
+      "chaser": {
+        "id": "01HQ0FG5GPEG9GHSKY6RCDMQSV",
+        "name": "Y170833950"
+      },
+      "status": "alarm",
+      "summary": {
+        "fact_date_latest": "2024-03-10T02:57:23.952269+00:00",
+        "fact_date_min": "2024-03-10T02:57:23.952269+00:00",
+        "fact_date_max": "2024-03-10T02:57:23.952269+00:00",
+        "tca_latest": "2024-03-15T09:44:17.166268+00:00",
+        "tca_min": "2024-03-15T09:44:17.166268+00:00",
+        "tca_max": "2024-03-15T09:44:17.166268+00:00",
+        "poc_latest": 0.00002949618,
+        "poc_min": 0.00002949618,
+        "poc_max": 0.00002949618,
+        "miss_distance_latest": 788,
+        "miss_distance_min": 788,
+        "miss_distance_max": 788,
+        "relative_speed_latest": 10336,
+        "relative_speed_min": 10336,
+        "relative_speed_max": 10336,
+        "cdm_count": 1,
+        "fact_date_initial": "2024-03-10T02:57:23.952269+00:00"
+      },
+      "details": {
+        "target": {
+          "state_vector": {
+            "x": -250372.5993089606,
+            "y": 1282778.9217605116,
+            "z": -6678191.003045517,
+            "x_dot": 6037.6713671852685,
+            "y_dot": -4551.55193652424,
+            "z_dot": -1075.2719071515332
+          },
+          "covariance": {
+            "computation_method": "calculated",
+            "cr_r": 30635.86800429525,
+            "ct_r": -3783029.383891573,
+            "ct_t": 473026735.3587846,
+            "cn_r": -352.5517277690626,
+            "cn_t": 54948.3567218577,
+            "cn_n": 317.0665927222073,
+            "crdot_r": 4253.045464580576,
+            "crdot_t": -531738.689385434,
+            "crdot_n": -61.65304444571268,
+            "crdot_rdot": 597.7388554945551,
+            "ctdot_r": -9.164738016330976,
+            "ctdot_t": 1095.724834431206,
+            "ctdot_n": 0.03282293258090542,
+            "ctdot_rdot": -1.232217195365539,
+            "ctdot_tdot": 0.002962822018859604,
+            "cndot_r": 2.636244846936576,
+            "cndot_t": -296.2426766219544,
+            "cndot_n": 0.7679336494454188,
+            "cndot_rdot": 0.3332305544538738,
+            "cndot_tdot": -0.000976583435612744,
+            "cndot_ndot": 0.003052873892262026,
+            "cdrg_r": 0,
+            "cdrg_t": 0,
+            "cdrg_n": 0,
+            "cdrg_rdot": 0,
+            "cdrg_tdot": 0,
+            "cdrg_ndot": 0,
+            "cdrg_drg": 0,
+            "csrp_r": 0,
+            "csrp_t": 0,
+            "csrp_n": 0,
+            "csrp_rdot": 0,
+            "csrp_tdot": 0,
+            "csrp_ndot": 0,
+            "csrp_drg": 0,
+            "csrp_srp": 0
+          },
+          "rss": 21749.889385773473
+        },
+        "chaser": {
+          "state_vector": {
+            "x": -250507.26675750024,
+            "y": 1283546.6341141113,
+            "z": -6678070.351454438,
+            "x_dot": -4140.747635843861,
+            "y_dot": -6354.201326360324,
+            "z_dot": -1044.7307851585606
+          },
+          "covariance": {
+            "computation_method": "calculated",
+            "cr_r": 98530.67962400558,
+            "ct_r": -15702505.71507762,
+            "ct_t": 2532215483.791845,
+            "cn_r": -257.9289201784055,
+            "cn_t": 138391.4208288228,
+            "cn_n": 5627.444801826985,
+            "crdot_r": 17581.57052844943,
+            "crdot_t": -2835260.795323581,
+            "crdot_n": -155.4450621349913,
+            "crdot_rdot": 3174.575188133316,
+            "ctdot_r": -14.94970958301227,
+            "ctdot_t": 2217.012858867093,
+            "ctdot_n": -0.5455909588558081,
+            "ctdot_rdot": -2.482188750605401,
+            "ctdot_tdot": 0.003211984066604587,
+            "cndot_r": -10.27228803245227,
+            "cndot_t": 1737.689734565246,
+            "cndot_n": 4.459519761382384,
+            "cndot_rdot": -1.944706574954149,
+            "cndot_tdot": 0.0009748212678531736,
+            "cndot_ndot": 0.00603832066459533,
+            "cdrg_r": 0,
+            "cdrg_t": 0,
+            "cdrg_n": 0,
+            "cdrg_rdot": 0,
+            "cdrg_tdot": 0,
+            "cdrg_ndot": 0,
+            "cdrg_drg": 0,
+            "csrp_r": 0,
+            "csrp_t": 0,
+            "csrp_n": 0,
+            "csrp_rdot": 0,
+            "csrp_tdot": 0,
+            "csrp_ndot": 0,
+            "csrp_drg": 0,
+            "csrp_srp": 0
+          },
+          "rss": 50322.15855779908
+        },
+        "tca": "2024-03-15T09:44:17.166268+00:00",
+        "miss_distance": 788,
+        "relative_speed": 10336,
+        "relative_position": {
+          "r": 31.3,
+          "t": -580.9,
+          "n": -532.6
+        },
+        "relative_position_sigma": {
+          "r": 355.6753288164673,
+          "t": 22177.75535813093,
+          "n": 50133.800898645415
+        },
+        "relative_velocity": {
+          "r": 4.7,
+          "t": -6976.7,
+          "n": 7627.4
+        }
+      },
+      "maneouvres": [
+        {
+          "id": "01HRRZWMVP5A9D90BN261WM0GX",
+          "space_object_id": "01H81FWYPJ2C0G6FHVKRQKCJA2",
+          "type": "impulsive",
+          "propulsion_type": "chemical",
+          "state_vector": {
+            "x": 124845.29155001466,
+            "y": -1183116.2541935872,
+            "z": 6666578.945682181,
+            "x_dot": -6067.975898936976,
+            "y_dot": 4600.571768221,
+            "z_dot": 953.9387889608316
+          },
+          "thrust_parameters": [],
+          "impulsive_parameters": [
+            {
+              "ignition_epoch": "2024-03-15T08:58:01.642076+00:00",
+              "fuel_consumption": 41.143471826458494,
+              "local_frame": "RTN",
+              "delta_v_vector": {
+                "dv1": 70,
+                "dv2": 0,
+                "dv3": 0,
+                "total_delta_v": 70
+              }
+            }
+          ],
+          "sum_fuel_consumption": 41.143471826458494,
+          "sum_duration": 0,
+          "sum_total_delta_v": 70,
+          "collision_avoidance": {
+            "conjunction_detail_id": "01HRRZF6PW667WDXSZG6STF4QA",
+            "tca": "2024-03-15T09:44:17.166268+00:00",
+            "poc": 9.190083846219991e-23,
+            "miss_distance": {
+              "r": 8999.324152328267,
+              "t": 250848.65693940638,
+              "n": 531.6906354243239,
+              "total": 251010.5958290097
+            },
+            "state_vector_tca": {
+              "x": -449230.186789115,
+              "y": 1432524.4990794696,
+              "z": -6641723.191690484,
+              "x_dot": 6024.587202429645,
+              "y_dot": -4507.65683206993,
+              "z_dot": -1283.0233182616382
+            }
+          }
+        },
+        {
+          "id": "01HRRZWMWM5PV3909BZEFF858D",
+          "space_object_id": "01H81FWYPJ2C0G6FHVKRQKCJA2",
+          "type": "impulsive",
+          "propulsion_type": "chemical",
+          "state_vector": {
+            "x": 124845.29155001466,
+            "y": -1183116.2541935872,
+            "z": 6666578.945682181,
+            "x_dot": -6067.975898936976,
+            "y_dot": 4600.571768221,
+            "z_dot": 953.9387889608316
+          },
+          "thrust_parameters": [],
+          "impulsive_parameters": [
+            {
+              "ignition_epoch": "2024-03-15T08:58:01.642076+00:00",
+              "fuel_consumption": 46.527460601991265,
+              "local_frame": "RTN",
+              "delta_v_vector": {
+                "dv1": 80,
+                "dv2": 0,
+                "dv3": 0,
+                "total_delta_v": 80
+              }
+            }
+          ],
+          "sum_fuel_consumption": 46.527460601991265,
+          "sum_duration": 0,
+          "sum_total_delta_v": 80,
+          "collision_avoidance": {
+            "conjunction_detail_id": "01HRRZF6PW667WDXSZG6STF4QA",
+            "tca": "2024-03-15T09:44:17.166268+00:00",
+            "poc": 2.162050261066473e-27,
+            "miss_distance": {
+              "r": 11445.413366216024,
+              "t": 287144.9836957984,
+              "n": 531.8203225007127,
+              "total": 287373.48865481536
+            },
+            "state_vector_tca": {
+              "x": -477956.15056492225,
+              "y": 1454092.9022787705,
+              "z": -6636064.427449539,
+              "x_dot": 6022.015555703699,
+              "y_dot": -4500.788533556213,
+              "z_dot": -1312.9951020817584
+            }
+          }
+        },
+        {
+          "id": "01HRRZWMXP2C99GNH9JXREGVA6",
+          "space_object_id": "01H81FWYPJ2C0G6FHVKRQKCJA2",
+          "type": "impulsive",
+          "propulsion_type": "chemical",
+          "state_vector": {
+            "x": 124845.29155001466,
+            "y": -1183116.2541935872,
+            "z": 6666578.945682181,
+            "x_dot": -6067.975898936976,
+            "y_dot": 4600.571768221,
+            "z_dot": 953.9387889608316
+          },
+          "thrust_parameters": [],
+          "impulsive_parameters": [
+            {
+              "ignition_epoch": "2024-03-15T08:58:01.642076+00:00",
+              "fuel_consumption": 35.64139515724054,
+              "local_frame": "RTN",
+              "delta_v_vector": {
+                "dv1": 60,
+                "dv2": 0,
+                "dv3": 0,
+                "total_delta_v": 60
+              }
+            }
+          ],
+          "sum_fuel_consumption": 35.64139515724054,
+          "sum_duration": 0,
+          "sum_total_delta_v": 60,
+          "collision_avoidance": {
+            "conjunction_detail_id": "01HRRZF6PW667WDXSZG6STF4QA",
+            "tca": "2024-03-15T09:44:17.166268+00:00",
+            "poc": 9.71876549811057e-19,
+            "miss_distance": {
+              "r": 6846.071054355311,
+              "t": 214642.53249700024,
+              "n": 531.6271159658583,
+              "total": 214752.3412514926
+            },
+            "state_vector_tca": {
+              "x": -420582.66874762054,
+              "y": 1410998.9988806865,
+              "z": -6647267.422595247,
+              "x_dot": 6026.9806960354235,
+              "y_dot": -4514.3745874962515,
+              "z_dot": -1253.119643742201
+            }
+          }
+        },
+        {
+          "id": "01HRRZWMZQ6NNATMCMMBHN7TP5",
+          "space_object_id": "01H81FWYPJ2C0G6FHVKRQKCJA2",
+          "type": "impulsive",
+          "propulsion_type": "chemical",
+          "state_vector": {
+            "x": 124845.29155001466,
+            "y": -1183116.2541935872,
+            "z": 6666578.945682181,
+            "x_dot": -6067.975898936976,
+            "y_dot": 4600.571768221,
+            "z_dot": 953.9387889608316
+          },
+          "thrust_parameters": [],
+          "impulsive_parameters": [
+            {
+              "ignition_epoch": "2024-03-15T08:58:01.642076+00:00",
+              "fuel_consumption": 51.795895936096315,
+              "local_frame": "RTN",
+              "delta_v_vector": {
+                "dv1": 90,
+                "dv2": 0,
+                "dv3": 0,
+                "total_delta_v": 90
+              }
+            }
+          ],
+          "sum_fuel_consumption": 51.795895936096315,
+          "sum_duration": 0,
+          "sum_total_delta_v": 90,
+          "collision_avoidance": {
+            "conjunction_detail_id": "01HRRZF6PW667WDXSZG6STF4QA",
+            "tca": "2024-03-15T09:44:17.166268+00:00",
+            "poc": 9.999999999999999e-31,
+            "miss_distance": {
+              "r": 14186.191972261087,
+              "t": 323529.3194241623,
+              "n": 532.0167070464801,
+              "total": 323840.6268699344
+            },
+            "state_vector_tca": {
+              "x": -506760.0397513766,
+              "y": 1475703.6195797846,
+              "z": -6630290.011551859,
+              "x_dot": 6019.264541447049,
+              "y_dot": -4493.769167920056,
+              "z_dot": -1343.0323582117537
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "name": "threejs-journey-exercise",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "deploy": "vercel --prod"
+  },
+  "devDependencies": {
+    "lil-gui": "^0.19.1",
+    "vite": "^4.5.0"
+  },
+  "dependencies": {
+    "csg": "^1.0.1",
+    "d3": "^7.9.0",
+    "gsap": "^3.12.2",
+    "three": "^0.158.0",
+    "three-csg": "^1.0.0",
+    "three-csg-ts": "^3.1.14",
+    "vercel": "^33.5.2"
+  }
+}

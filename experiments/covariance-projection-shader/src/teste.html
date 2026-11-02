@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object List</title>
+<style>
+    #list-container {
+        margin: 20px;
+    }
+
+    .item {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 5px;
+    }
+
+    #buttons-container {
+        margin-top: 10px;
+    }
+
+    #status {
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+<div id="list-container">
+    <!-- List items will be displayed here -->
+</div>
+<div id="status"></div>
+<div id="buttons-container">
+    <button id="prev-btn" disabled>Previous</button>
+    <button id="next-btn">Next</button>
+</div>
+
+<script>
+    const data = [
+        { id: 1, name: 'Object 1' },
+        { id: 2, name: 'Object 2' },
+        { id: 3, name: 'Object 3' },
+        { id: 4, name: 'Object 4' },
+        { id: 5, name: 'Object 5' },
+        { id: 6, name: 'Object 6' },
+        { id: 7, name: 'Object 7' },
+        { id: 8, name: 'Object 8' },
+        { id: 9, name: 'Object 9' },
+        { id: 10, name: 'Object 10' },
+        { id: 11, name: 'Object 11' },
+        { id: 12, name: 'Object 12' },
+        { id: 13, name: 'Object 13' },
+        { id: 14, name: 'Object 14' },
+        { id: 15, name: 'Object 15' },
+        { id: 16, name: 'Object 16' },
+        { id: 17, name: 'Object 17' },
+    ];
+
+    const listContainer = document.getElementById('list-container');
+    const prevButton = document.getElementById('prev-btn');
+    const nextButton = document.getElementById('next-btn');
+    const statusElement = document.getElementById('status');
+    let startIndex = 0;
+
+    function showItems(startIndex) {
+        listContainer.innerHTML = '';
+        for (let i = startIndex; i < Math.min(startIndex + 4, data.length); i++) {
+            const item = document.createElement('div');
+            item.classList.add('item');
+            item.textContent = `${data[i].name}`;
+            listContainer.appendChild(item);
+        }
+        updateStatus(startIndex);
+    }
+
+    function updateStatus(startIndex) {
+        const endIndex = Math.min(startIndex + 4, data.length);
+        statusElement.textContent = `${startIndex + 1} - ${endIndex} of ${data.length}`;
+    }
+
+    showItems(startIndex);
+
+    prevButton.addEventListener('click', () => {
+        startIndex = Math.max(startIndex - 4, 0);
+        showItems(startIndex);
+        nextButton.disabled = false;
+        if (startIndex === 0) {
+            prevButton.disabled = true;
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        startIndex += 4;
+        showItems(startIndex);
+        prevButton.disabled = false;
+        if (startIndex + 4 >= data.length) {
+            nextButton.disabled = true;
+        }
+    });
+</script>
+</body>
+</html>

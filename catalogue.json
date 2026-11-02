@@ -1,0 +1,91 @@
+{
+  "archive_version": 1,
+  "experiments": [
+    {
+      "directory": "experiments/group-objects",
+      "title": "Grouping objects",
+      "source_branch": "EXP_CHORE_GroupObjects",
+      "source_commit": "71075f3a874adb1311c61e476fa694f5c26b8e0b",
+      "source_tree": "6aad06094400a1600314c977d715e2915d4a5907",
+      "source_date": "2024-04-01T19:48:56+01:00",
+      "archive_tag": "archive/experiments/group-objects",
+      "suggested_project": "Exploration/A-frame/Conjunctions",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe"
+      ]
+    },
+    {
+      "directory": "experiments/controllers-and-hands",
+      "title": "Controller and hand interaction",
+      "source_branch": "EXP_FEAT_ControllerAndHandsInteraction",
+      "source_commit": "8e2cbc7b302bfbb2d7a05058b82135316715e875",
+      "source_tree": "ccf658f15a074460339b12775b171d31702a77fc",
+      "source_date": "2024-04-08T23:01:44+01:00",
+      "archive_tag": "archive/experiments/controllers-and-hands",
+      "suggested_project": "Exploration/A-frame/Globe",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe"
+      ]
+    },
+    {
+      "directory": "experiments/covariance-projection-shader",
+      "title": "Covariance projection shader",
+      "source_branch": "EXP_FEAT_CovarianceProjectionShader",
+      "source_commit": "2276757c57cf50b2c8c560f562346eaafbee2996",
+      "source_tree": "573a27a9eb9a6f24308dfa6668a25ab52084c2e6",
+      "source_date": "2024-07-22T21:37:17+01:00",
+      "archive_tag": "archive/experiments/covariance-projection-shader",
+      "suggested_project": ".",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe",
+        "."
+      ]
+    },
+    {
+      "directory": "experiments/eme2000-positions-and-trajectories",
+      "title": "EME2000 positions and trajectories",
+      "source_branch": "EXP_FEAT_EME2000PositionsAndTrajectories",
+      "source_commit": "cc7f472e506c38358ac53f7a1c4b7f33eea5a88e",
+      "source_tree": "8a296edc7c44b3e05ceb0fb8cb3e887c059a2304",
+      "source_date": "2024-04-18T19:11:48+01:00",
+      "archive_tag": "archive/experiments/eme2000-positions-and-trajectories",
+      "suggested_project": "Exploration/A-frame/Globe",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe"
+      ]
+    },
+    {
+      "directory": "experiments/globe-representation",
+      "title": "Globe representation",
+      "source_branch": "EXP_FEAT_GlobeRepresentation",
+      "source_commit": "08e3fca8a79e902c5de3593d6ac4c62d7e01b7dc",
+      "source_tree": "6dca63202a8b98efcc187f22fe5e63fb68f111a2",
+      "source_date": "2024-04-05T16:34:15+01:00",
+      "archive_tag": "archive/experiments/globe-representation",
+      "suggested_project": "Exploration/A-frame/Globe",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe"
+      ]
+    },
+    {
+      "directory": "experiments/menu-panels",
+      "title": "Menu panels",
+      "source_branch": "EXP_FEAT_MenuPanels",
+      "source_commit": "4a9f0487c71fe16ace395c0cbcff2924f68ed2bb",
+      "source_tree": "0e27670c7107a0f2a2c79507e9abff604e117514",
+      "source_date": "2024-05-11T19:56:12+01:00",
+      "archive_tag": "archive/experiments/menu-panels",
+      "suggested_project": ".",
+      "projects_with_dev_script": [
+        "Exploration/A-frame/Conjunctions",
+        "Exploration/A-frame/Globe",
+        "."
+      ]
+    }
+  ]
+}
