@@ -25,6 +25,11 @@
     "three": "npm:super-three@0.184.0",
     "three-mesh-ui": "6.5.4"
   },
+  "overrides": {
+    "eslint": {
+      "minimatch": "11.0.4"
+    }
+  },
   "engines": {
     "node": "^22.13.0 || >=24.0.0",
     "npm": ">=10.8.3"
